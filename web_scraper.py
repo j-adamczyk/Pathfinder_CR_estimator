@@ -39,13 +39,11 @@ def parse_monster_page(link: str) -> None:
     text: Match = re.search(r"(CR[.\S\s]*?)SPECIAL ABILITIES|(CR[.\S\s]*?)\n\n",
                             text)
 
-    # TODO: further processing
-
 
 if __name__ == "__main__":
     # get links for monster listings for all monsters on the page
     text: str = get_page_content(
-        "https://www.d20pfsrd.com/bestiary/monster-listings/") \
+        "https://www.d20pfsrd.com/bestiary/bestiary-hub/monsters-by-cr/") \
         .decode('utf-8')
 
     monster_links: List[str] = re.findall(r"<a href=.+?</a>",
@@ -57,7 +55,9 @@ if __name__ == "__main__":
     # filter out 3rd party content
     monster_links = [link
                      for link in monster_links
-                     if "3pp" not in link]
+                     if "3pp" not in link
+                     and "tohc" not in link
+                     and "TOHC" not in link]
 
     # get only hyperlinks
     monster_links: List[Optional[Match[str]]] = \
@@ -69,16 +69,8 @@ if __name__ == "__main__":
                                 for link in monster_links
                                 if link]
 
-    # remove first links, since they guide to monster categories, not individual monster pages; instead of doing
-    # it by hand, I know that first type is "aberrations" and there are monsters starting with "a", so I get
-    # index of first monster and slice list
-    i = 0
-    for index, link in enumerate(monster_links):
-        if "https://www.d20pfsrd.com/bestiary/monster-listings/aberrations/a" in link:
-            i: int = index
-            break
-
-    monster_links = monster_links[i:]
+    # TODO: remove this limit, it's here for faster testing
+    monster_links = monster_links[:1]
 
     # if there are less than MAX_THREADS links, spawn less threads, so they are not wasted
     num_threads: int = min(MAX_THREADS, len(monster_links))
