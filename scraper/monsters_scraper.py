@@ -51,44 +51,45 @@ def parse_monster_page(link: str) -> Union[Monster, List[Monster]]:
     if name:
         monster.name = name.group(1)
 
-    parse_basic_info(stat_block, monster)
-    parse_defense(stat_block, monster)
-    parse_offense(stat_block, monster)
-    parse_statistics(stat_block, monster)
+    # division into separate blocks for parsing makes further regrexes faster
+    blocks = re.match(r"([\s\S]+)"
+                      r"DEFENSE([\s\S]+)"
+                      r"OFFENSE([\s\S]+)"
+                      r"STATISTICS([\s\S]+)", stat_block)
+
+    parse_basic_info(blocks.group(1), monster)
+    parse_defense(blocks.group(2), monster)
+    parse_offense(blocks.group(3), monster)
+    parse_statistics(blocks.group(4), monster)
+
+    print(monster)
     return monster
 
 
-def get_subpages_links(html: str) -> List[str]:
+def get_subpages_links(html_text: str) -> List[str]:
     """
     Gets monster links from a page containing list of subpages.
 
-    :param html: content bytes of page decoded as string
+    :param html_text: content bytes of page decoded as string
     :return: list of links to monster pages
     """
     # remove sidebars, get only main page content
-    html: Optional[Match[str]] = re.search(r"<!-- Content -->[\S\s]*Subpages([\S\s]*)", html)
-    if not html:
+    html_text: Optional[Match[str]] = re.search(
+        r"<!-- Content -->[\S\s]*Subpages([\S\s]*)", html_text)
+    if not html_text:
         exit()
     else:
-        html: str = html.group(1)
+        html_text: str = html_text.group(1)
 
-    # get monster links, filter out 3rd party content
-    monster_links: List[str] = re.findall(r"<a href=.+?</a>", html)
-    monster_links = [link for link in monster_links
-                     if not re.compile("3pp|3PP|tohc|TOHC").search(link)]
-    monster_links: List[Optional[Match[str]]] = \
-        [re.match(r"<a href=\"(https://www.d20pfsrd.com/bestiary/monster-listings/.+?)\">", link)
-         for link in monster_links]
-    monster_links: List[str] = [link.group(1) for link in monster_links
-                                if link]
+    links: List[str] = get_official_monster_links(html_text)
 
     # sometimes links are duplicated here, where some have "/" at the end, when some do not
-    monster_links = [link if not link.endswith("/")
-                     else link[:-1]
-                     for link in monster_links]
+    links = [link if not link.endswith("/")
+             else link[:-1]
+             for link in links]
 
     # guarantee uniqueness
-    return list(set(monster_links))
+    return list(set(links))
 
 
 def parse_basic_info(stat_block: str, monster: Monster) -> None:
@@ -199,20 +200,8 @@ def parse_offense(stat_block: str, monster: Monster) -> None:
         if movement:
             setattr(monster, movement_type, movement.group(1))
 
-    # TODO: parse attacks, space and reach
-
-
-def parse_statistics(stat_block: str, monster: Monster) -> None:
-    """
-    Parses the fourth part of the monster stat block, STATISTICS. It includes
-    6 attribute scores, BAB, CMB, CMD, feats and skills.
-
-    :param stat_block: string with the monster statistics block
-    :param monster: Monster class object to fill
-    """
-
+    # TODO: parse attacks, space and reach, remove stat block in the final version
     # example stat block for reference
-    # TODO: remove the stat block in the final version
     """
     CR 1/8
     XP 50 N Diminutive animal Init +2; Senses blindsense 20 ft., low-light vision; Perception +6
@@ -223,6 +212,16 @@ def parse_statistics(stat_block: str, monster: Monster) -> None:
     STATISTICS
     Str 1, Dex 15, Con 6, Int 2, Wis 14, Cha 5 Base Atk +0; CMB –2; CMD 3 Feats Weapon Finesse Skills Fly +16, Perception +6; Racial Modifier +4 Perception
     SPECIAL ABILITIES
+    """
+
+
+def parse_statistics(stat_block: str, monster: Monster) -> None:
+    """
+    Parses the fourth part of the monster stat block, STATISTICS. It includes
+    6 attribute scores, BAB, CMB, CMD, feats and skills.
+
+    :param stat_block: string with the monster statistics block
+    :param monster: Monster class object to fill
     """
     attributes = re.search(r"Str\s+([0-9]+)[\s\S]+"
                            r"Dex\s+([0-9]+)[\s\S]+"
@@ -286,31 +285,40 @@ def parse_statistics(stat_block: str, monster: Monster) -> None:
             if skill in skills:
                 monster.skills_num += 1
 
-    print(monster)
 
+def get_official_monster_links(html_text: str) -> List[str]:
+    """
+    Gets all the links to the single monster pages, only the official ones (no
+    3rd party content).
 
-if __name__ == "__main__":
-    # get links for monster listings for all monsters on the page
-    text: str = get_page_content(
-        "https://www.d20pfsrd.com/bestiary/bestiary-hub/monsters-by-cr/") \
-        .decode("utf-8")
-
-    monster_links: List[str] = re.findall(r"<a href=.+?</a>", text)
+    :param html_text: page HTML code, decoded from content bytes as string
+    :return: list of links
+    """
+    links: List[str] = re.findall(r"<a href=.+?</a>", html_text)
 
     # some hyperlink list cleaning
     # 3 list comprehensions turned out to be a degree of magnitude faster than 1 for loop
 
     # filter out 3rd party content
-    monster_links = [link for link in monster_links
-                     if not re.compile("3pp|3PP|tohc|TOHC").search(link)]
+    links = [link for link in links
+             if not re.compile("3pp|3PP|tohc|TOHC").search(link)]
 
     # get only hyperlinks
-    monster_links: List[Optional[Match[str]]] = \
+    links: List[Optional[Match[str]]] = \
         [re.match(r"<a href=\"(https://www.d20pfsrd.com/bestiary/monster-listings/.+?)\">", link)
-         for link in monster_links]
+         for link in links]
+    links: List[str] = [link.group(1) for link in links if link]
 
-    monster_links: List[str] = [link.group(1) for link in monster_links
-                                if link]
+    return links
+
+
+if __name__ == "__main__":
+    # get links for monster listings for all monsters on the page
+    html: str = get_page_content(
+        "https://www.d20pfsrd.com/bestiary/bestiary-hub/monsters-by-cr/") \
+        .decode("utf-8")
+
+    monster_links: List[str] = get_official_monster_links(html)
 
     # TODO: remove this limit in final version, it's here for faster testing
     monster_links = monster_links[:1]
