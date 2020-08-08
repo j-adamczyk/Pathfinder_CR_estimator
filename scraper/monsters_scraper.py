@@ -6,10 +6,11 @@ from typing import List, Match, Optional, Union
 from bs4 import BeautifulSoup
 
 from scraper.model import Monster
-from scraper.utils import get_page_content, flatten
+from scraper.utils import get_feats_names, get_page_content, flatten
 
 
 MAX_THREADS = 30
+all_feats_names = get_feats_names()
 
 
 def parse_monster_page(link: str) -> Union[Monster, List[Monster]]:
@@ -23,6 +24,9 @@ def parse_monster_page(link: str) -> Union[Monster, List[Monster]]:
     soup = BeautifulSoup(content_bytes, "html.parser")
     html: str = content_bytes.decode("utf-8")
     text: str = soup.get_text()
+
+    # replace non-standard dash with a regular ASCII one
+    text = text.replace("–", "-")
 
     # reduce text to the interesting part
     stat_block = re.search(r"(CR[.\S\s]*?)SPECIAL ABILITIES|(CR[.\S\s]*?)\n\n", text)
@@ -43,7 +47,7 @@ def parse_monster_page(link: str) -> Union[Monster, List[Monster]]:
     monster = Monster()
     stat_block = stat_block.group()
 
-    name = re.search(r"(.+?) – d20PFSRD", text)
+    name = re.search(r"(.+?) - d20PFSRD", text)
     if name:
         monster.name = name.group(1)
 
@@ -124,7 +128,7 @@ def parse_basic_info(stat_block: str, monster: Monster) -> None:
     if creature_type:
         monster.type = creature_type.group(1).capitalize()
 
-    init = re.search(r"Init\s+([0-9]+);", stat_block)
+    init = re.search(r"Init\s+(0|\+[0-9]+|-[0-9]+)", stat_block)
     if init:
         monster.init = int(init.group(1))
 
@@ -137,10 +141,10 @@ def parse_basic_info(stat_block: str, monster: Monster) -> None:
                       "thoughtsense", "tremorsense"]:
             if sense in senses:
                 counter += 1
-        monster.senses = counter
+        monster.senses = int(counter)
 
     "XP 50 N Diminutive animal Init +2; Senses blindsense 20 ft., low-light vision; Perception +6"
-    perception = re.search(r"Perception\s+(\+[0-9]+|-[0-9]+)", stat_block)
+    perception = re.search(r"Perception\s+(0|\+[0-9]+|-[0-9]+)", stat_block)
     if perception:
         monster.perception = int(perception.group(1))
 
@@ -153,23 +157,23 @@ def parse_defense(stat_block: str, monster: Monster) -> None:
     :param stat_block: string with the monster statistics block
     :param monster: Monster class object to fill
     """
-    armor = re.search(r"AC\s+([0-9]+)[\s\S]+"
-                      r"touch\s+([0-9]+)[\s\S]+"
-                      r"flat-footed\s+([0-9]+)",
+    armor = re.search(r"AC\s+(0|[0-9]+)[\s\S]+"
+                      r"touch\s+(0|[0-9]+)[\s\S]+"
+                      r"flat-footed\s+(0|[0-9]+)",
                       stat_block)
     if armor:
-        monster.AC = armor.group(1)
-        monster.touch = armor.group(2)
-        monster.flat_footed = armor.group(3)
+        monster.AC = int(armor.group(1))
+        monster.touch = int(armor.group(2))
+        monster.flat_footed = int(armor.group(3))
 
     HP_and_HD = re.search(r"hp\s+([0-9]+)\s+\(([0-9]+).*\)\s+", stat_block)
     if HP_and_HD:
         monster.HP = int(HP_and_HD.group(1))
         monster.HD = int(HP_and_HD.group(2))
 
-    saving_throws = re.search(r"Fort\s+(\+[0-9]+|-[0-9]+)[\s\S]+"
-                              r"Ref\s+(\+[0-9]+|-[0-9]+)[\s\S]+"
-                              r"Will\s+(\+[0-9]+|-[0-9]+)",
+    saving_throws = re.search(r"Fort\s+(0|\+[0-9]+|-[0-9]+)[\s\S]+"
+                              r"Ref\s+(0|\+[0-9]+|-[0-9]+)[\s\S]+"
+                              r"Will\s+(0|\+[0-9]+|-[0-9]+)",
                               stat_block)
     if saving_throws:
         monster.fortitude = int(saving_throws.group(1))
@@ -235,19 +239,54 @@ def parse_statistics(stat_block: str, monster: Monster) -> None:
         monster.wisdom = int(attributes.group(5))
         monster.charisma = int(attributes.group(6))
 
-    BAB_CMB_CMD = re.search(r"Base\s+Atk\s+(\+[0-9]+|-[0-9]+)[\s\S]+"
-                            r"CMB\s+(\+[0-9]+|-[0-9]+)[\s\S]+"
-                            r"CMD\s+([0-9]+)", stat_block)
+    BAB_CMB_CMD = re.search(r"Base\s+Atk\s+(0|\+[0-9]+|-[0-9]+)[\s\S]+"
+                            r"CMB\s+(0|\+[0-9]+|-[0-9]+)[\s\S]+"
+                            r"CMD\s+(0|[0-9]+)", stat_block)
     if BAB_CMB_CMD:
-        monster.BAB = BAB_CMB_CMD.group(1)
-        monster.CMB = BAB_CMB_CMD.group(2)
-        monster.CMD = BAB_CMB_CMD.group(3)
+        monster.BAB = int(BAB_CMB_CMD.group(1))
+        monster.CMB = int(BAB_CMB_CMD.group(2))
+        monster.CMD = int(BAB_CMB_CMD.group(3))
 
     feats = re.search(r"Feats ([\s\S]+?) Skills", stat_block)
-    # TODO: parse feats at feat page, save to file, load it here and check for the number of feats
+    if feats:
+        feats = feats.group(1).split()
+        monster.feats_num = 0
+        # most feats have 1 or 2 words, the longest one has 6 words
+        # first try to find and remove 1-word feats, than 2-word etc.
+        to_remove = set()
+        for curr_length in range(1, 7):
+            i = 0
+            while i + curr_length <= len(feats):
+                feat = " ".join(feats[i:i + curr_length])
+                if feat in all_feats_names:
+                    monster.feats_num += 1
+                    # remove the words we used to create this feat name
+                    to_remove |= {j for j in range(i, i + curr_length)}
+                    i = i + curr_length
+                else:
+                    i += 1
+            feats = [feat for i, feat in enumerate(feats) if i not in to_remove]
 
-    skills = re.search(r"Skills[\s\S]+", stat_block)
-    # TODO: get list of skills, check number of skills
+    skills = re.search(r"Skills([\s\S]+)", stat_block)
+    skills_names = {"Acrobatics", "Appraise", "Bluff", "Climb", "Craft",
+                    "Diplomacy", "Disable Device", "Disguise", "Escape Artist",
+                    "Fly", "Handle Animal", "Heal", "Intimidate",
+                    "Knowledge (arcana)", "Knowledge (dungeoneering)",
+                    "Knowledge (engineering)", "Knowledge (geography)",
+                    "Knowledge (history)", "Knowledge (local)",
+                    "Knowledge (nature)", "Knowledge (nobility)",
+                    "Knowledge (planes)", "Knowledge (religion)", "Linguistics",
+                    "Perception", "Perform", "Profession", "Ride",
+                    "Sense Motive", "Sleight of Hand", "Spellcraft", "Stealth",
+                    "Survival", "Swim", "Use Magic Device"}
+    if skills:
+        skills = skills.group(1)
+        monster.skills_num = 0
+        for skill in skills_names:
+            if skill in skills:
+                monster.skills_num += 1
+
+    print(monster)
 
 
 if __name__ == "__main__":
