@@ -4,7 +4,7 @@ from typing import Union
 class Monster:
     def __init__(self):
         # basic info
-        self.name: Union[str, None] = None
+        self.name: Union[str, None] = ""
         self.CR: Union[float, None] = None
         self.XP: Union[int, None] = None
         self.alignment: Union[str, None] = None
@@ -47,5 +47,8 @@ class Monster:
         self.CMB: Union[int, None] = None
         self.CMD: Union[int, None] = None
 
-        self.feat_num: Union[int, None] = None
-        self.skills_num: Union[int, None] = None
+        self.feats_num: Union[int, None] = 0
+        self.skills_num: Union[int, None] = 0
+
+    def __repr__(self):
+        return ", ".join(f"({attr}: {val})" for attr, val in vars(self).items())
