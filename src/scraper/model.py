@@ -1,10 +1,13 @@
-from typing import Union
+from typing import List, Union
 
 
 class Monster:
     def __init__(self):
+        # technical details
+        self.link: str = ""
+
         # basic info
-        self.name: Union[str, None] = ""
+        self.name: str = ""
         self.CR: Union[float, None] = None
         self.XP: Union[int, None] = None
         self.alignment: Union[str, None] = None
@@ -18,20 +21,28 @@ class Monster:
         self.AC: Union[int, None] = None
         self.touch: Union[int, None] = None
         self.flat_footed: Union[int, None] = None
+
         self.HP: Union[int, None] = None
         self.HD: Union[int, None] = None
+
         self.fortitude: Union[int, None] = None
         self.reflex: Union[int, None] = None
         self.will: Union[int, None] = None
 
         # offense
-        self.speed: Union[int, None] = None
-        self.swim: Union[int, None] = None
-        self.fly: Union[int, None] = None
-        self.burrow: Union[int, None] = None
-        self.attacks: Union[int, None] = None
-        self.largest_attack_bonus: Union[int, None] = None
-        self.avg_damage: Union[int, None] = None
+        self.speed: int = 0
+        self.swim: int = 0
+        self.fly: int = 0
+        self.burrow: int = 0
+
+        self.highest_attack_bonus: Union[int, None] = None
+
+        self.melee_attacks_num: int = 0
+        self.melee_avg_dmg: int = 0
+        
+        self.ranged_attacks_num: int = 0
+        self.ranged_avg_dmg: int = 0
+
         self.space: Union[int, None] = None
         self.reach: Union[int, None] = None
 
@@ -47,8 +58,9 @@ class Monster:
         self.CMB: Union[int, None] = None
         self.CMD: Union[int, None] = None
 
-        self.feats_num: Union[int, None] = 0
-        self.skills_num: Union[int, None] = 0
+        self.feats_num: int = 0
+        self.skills_num: int = 0
 
     def __repr__(self):
-        return ", ".join(f"({attr}: {val})" for attr, val in vars(self).items())
+        return "\n".join(f"{attr}: {val}"
+                         for attr, val in vars(self).items())

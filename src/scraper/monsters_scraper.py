@@ -1,13 +1,13 @@
 from concurrent.futures import ThreadPoolExecutor
 from fractions import Fraction
 import re
+from statistics import mean
 from typing import List, Match, Optional, Union
 
 from bs4 import BeautifulSoup
 
-from scraper.model import Monster
-from scraper.utils import get_feats_names, get_page_content, flatten
-
+from src.scraper.model import Monster
+from src.scraper.utils import *
 
 MAX_THREADS = 30
 all_feats_names = get_feats_names()
@@ -29,22 +29,26 @@ def parse_monster_page(link: str) -> Union[Monster, List[Monster]]:
     text = text.replace("–", "-")
 
     # reduce text to the interesting part
-    stat_block = re.search(r"(CR[.\S\s]*?)SPECIAL ABILITIES|(CR[.\S\s]*?)\n\n", text)
+    stat_block = re.search(r"(CR\s+[0-9/]+\s+XP[\S\s]*?)SPECIAL ABILITIES|"
+                           r"(CR\s+[0-9/]+\)\s+XP[.\S\s]*?)SPECIAL ABILITIES|"
+                           r"(CR\s+[0-9/]+\s+XP[\S\s]*?STATISTICS[\S\s]*?)\n\n|"
+                           r"(CR\s+[0-9/]+\)\s+XP[\S\s]*?STATISTICS[\S\s]*?)\n\n|"
+                           r"(CR\s+[0-9/]+\s+XP[\S\s]*?STATISTICS[\S\s]*?)|"
+                           r"(CR\s+[0-9/]+\)\s+XP[\S\s]*?STATISTICS[\S\s]*)",
+                           text)
 
     if not stat_block:
         # page probably is a list of subpages of monsters with particular subtype
         monster_links = get_subpages_links(html)
-        result = []
-        for link in monster_links:
-            monster = parse_monster_page(link)
-            result.append(monster)
+        result = [parse_monster_page(link) for link in monster_links]
 
         # we may encounter nested lists of monsters
-        return list(flatten(result))
+        return flatten(result)
 
     # get all the information about the monster; if we don't get something, we
     # will have the default value from the Monster constructor
     monster = Monster()
+    monster.link = link
     stat_block = stat_block.group()
 
     name = re.search(r"(.+?) - d20PFSRD", text)
@@ -136,15 +140,11 @@ def parse_basic_info(stat_block: str, monster: Monster) -> None:
     senses = re.search(r"Senses([\S\s]+);", stat_block)
     if senses:
         senses = {sense.lower() for sense in senses.group(1).split()}
-        counter = 0
-        for sense in ["blindsense", "blindsight", "greensight", "darkvision",
+        all_senses = {"blindsense", "blindsight", "greensight", "darkvision",
                       "lifesense", "low-light vision", "mistsight", "scent",
-                      "thoughtsense", "tremorsense"]:
-            if sense in senses:
-                counter += 1
-        monster.senses = int(counter)
+                      "thoughtsense", "tremorsense"}
+        monster.senses = len(all_senses & senses)
 
-    "XP 50 N Diminutive animal Init +2; Senses blindsense 20 ft., low-light vision; Perception +6"
     perception = re.search(r"Perception\s+(0|\+[0-9]+|-[0-9]+)", stat_block)
     if perception:
         monster.perception = int(perception.group(1))
@@ -200,19 +200,49 @@ def parse_offense(stat_block: str, monster: Monster) -> None:
         if movement:
             setattr(monster, movement_type, movement.group(1))
 
-    # TODO: parse attacks, space and reach, remove stat block in the final version
-    # example stat block for reference
-    """
-    CR 1/8
-    XP 50 N Diminutive animal Init +2; Senses blindsense 20 ft., low-light vision; Perception +6
-    DEFENSE
-    AC 16, touch 16, flat-footed 14 (+2 Dex, +4 size) hp 2 (1d8–2) Fort +0, Ref +4, Will +2
-    OFFENSE
-    Speed 5 ft., fly 40 ft. (good) Melee bite +6 (1d3–4)* Space 1 ft.; Reach 0 ft.
-    STATISTICS
-    Str 1, Dex 15, Con 6, Int 2, Wis 14, Cha 5 Base Atk +0; CMB –2; CMD 3 Feats Weapon Finesse Skills Fly +16, Perception +6; Racial Modifier +4 Perception
-    SPECIAL ABILITIES
-    """
+    attacks = re.search(r"Melee([\s\S]+)|Ranged([\s\S]+)", stat_block)
+    words_to_remove = {"Melee ", "Ranged ", " and ", " or "}
+    translation = "|".join(words_to_remove)
+    if attacks:
+        attacks = attacks.group().split(")")
+        attacks = [attack
+                   for attack in attacks
+                   if re.search(r"[\s\S]+\([0-9]+d[\s\S]+", attack)]
+
+        ranged_index_start = None
+        for index, attack in enumerate(attacks):
+            if "Ranged" in attack:
+                ranged_index_start = index
+                break
+
+        if ranged_index_start is not None:
+            melee_attacks = attacks[:ranged_index_start]
+            ranged_attacks = attacks[ranged_index_start:]
+        else:
+            melee_attacks = attacks
+            ranged_attacks = []
+
+        melee_attacks = [re.sub(translation, "", attack).strip()
+                         for attack in melee_attacks]
+        ranged_attacks = [re.sub(translation, "", attack).strip()
+                          for attack in ranged_attacks]
+
+        melee_attacks = [parse_single_attack_type(attack)
+                         for attack in melee_attacks]
+        ranged_attacks = [parse_single_attack_type(attack)
+                          for attack in ranged_attacks]
+
+        monster.highest_attack_bonus = max([attack["highest_bonus"]
+                                            for attack
+                                            in melee_attacks + ranged_attacks])
+
+        monster.melee_attacks_num = len(melee_attacks)
+        monster.melee_avg_dmg = mean([attack["avg_dmg"]
+                                      for attack in melee_attacks])
+
+        monster.ranged_attacks_num = len(ranged_attacks)
+        monster.ranged_avg_dmg = mean([attack["avg_dmg"]
+                                       for attack in ranged_attacks])
 
 
 def parse_statistics(stat_block: str, monster: Monster) -> None:
@@ -246,9 +276,9 @@ def parse_statistics(stat_block: str, monster: Monster) -> None:
         monster.CMB = int(BAB_CMB_CMD.group(2))
         monster.CMD = int(BAB_CMB_CMD.group(3))
 
-    feats = re.search(r"Feats ([\s\S]+?) Skills", stat_block)
+    feats = re.search(r"Feats([\s\S]+?)Skills", stat_block)
     if feats:
-        feats = feats.group(1).split()
+        feats = feats.group(1).strip().split()
         monster.feats_num = 0
         # most feats have 1 or 2 words, the longest one has 6 words
         # first try to find and remove 1-word feats, than 2-word etc.
@@ -320,8 +350,8 @@ if __name__ == "__main__":
 
     monster_links: List[str] = get_official_monster_links(html)
 
-    # TODO: remove this limit in final version, it's here for faster testing
-    monster_links = monster_links[:1]
+    # TODO: remove this in final version, it's here for faster testing
+    monster_links = ["https://www.d20pfsrd.com/bestiary/monster-listings/outsiders/tiefling"]
 
     # if there are less than MAX_THREADS links, spawn less threads, so they are not wasted
     num_threads: int = min(MAX_THREADS, len(monster_links))
