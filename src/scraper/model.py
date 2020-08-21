@@ -14,7 +14,7 @@ class Monster:
         self.size: Union[str, None] = None
         self.type: Union[str, None] = None
         self.init: Union[int, None] = None
-        self.senses: Union[int, None] = None
+        self.senses: int = 0
         self.perception: Union[int, None] = None
 
         # defense
@@ -31,9 +31,10 @@ class Monster:
 
         # offense
         self.speed: int = 0
-        self.swim: int = 0
-        self.fly: int = 0
         self.burrow: int = 0
+        self.climb: int = 0
+        self.fly: int = 0
+        self.swim: int = 0
 
         self.highest_attack_bonus: Union[int, None] = None
 

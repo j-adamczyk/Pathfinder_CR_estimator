@@ -122,7 +122,7 @@ def parse_single_attack_type(text: str) -> Dict[str, Union[int, float]]:
               "highest_bonus": 0,
               "avg_dmg": 0}
 
-    bonuses = re.search(r"([0-9+\-/]+)\s+", text)
+    bonuses = re.search(r"([0-9+\-/]+)\s+\(", text)
     if bonuses:
         bonuses = bonuses.group()
         result["attacks_num"] = bonuses.count("/") + 1

@@ -20,10 +20,28 @@ def parse_monster_page(link: str) -> Union[Monster, List[Monster]]:
     :param link: hyperlink to monster page
     :return: either a single monster info or list of monsters
     """
-    content_bytes: bytes = get_page_content(link)
+    """content_bytes: bytes = get_page_content(link)
     soup = BeautifulSoup(content_bytes, "html.parser")
     html: str = content_bytes.decode("utf-8")
-    text: str = soup.get_text()
+    text: str = soup.get_text()"""
+
+    text = """
+    Planetar CR 16
+    XP 76,800 NG Large outsider (angel, extraplanar, good) Init +8; Senses darkvision 60 ft., detect evil, detect snares and pits, low-light vision, true seeing; Perception +27 Aura protective aura
+    DEFENSE
+    AC 32, touch 13, flat-footed 28 (+4 Dex, +19 natural, -1 size; +4 deflection vs. evil) hp 229 (17d10+136); regeneration 10 (evil weapons and effects) Fort +19, Ref +11, Will +19; +4 vs. poison, +4 resistance vs. evil DR 10/evil; Immune acid, cold, petrification; Resist electricity 10, fire 10; SR 27
+    OFFENSE
+    Speed 30 ft., fly 90 ft. (good) Melee +3 holy greatsword +27/+22/+17 (3d6+15/19-20) or slam +24 (2d8+12)  Space 10 ft.; Reach 10 ft.
+    Spell-Like Abilities (CL 16th)
+     Constant—detect evil, detect snares and pits, discern lies (DC 20), true seeing At will—continual flame, dispel magic, holy smite (DC 21), invisibility (self only), lesser restoration, remove curse, remove disease, remove fear (DC 18), speak with dead (DC 20) 3/day—blade barrier (DC 21), flame strike (DC 22), power word stun, raise dead, waves of fatigue 1/day—earthquake (DC 25), greater restoration, mass charm monster (DC 25), waves of exhaustion
+    Cleric Spells Prepared (CL 16th)
+     8th—earthquake (DC 25), fire storm (DC 25) 7th—holy word (DC 24), regenerate (2) 6th—banishment(DC 23), greater dispel magic, heal, mass cure moderate wounds (DC 23) 5th—break enchantment, dispel evil (2, DC 22), plane shift (DC 22), righteous might 4th—death ward, dismissal (DC 21), neutralize poison (DC 21), summon monster IV 3rd—cure serious wounds (2), daylight, invisibility purge, summon monster III, wind wall 2nd—align weapon (2), bear’s endurance (2), cure moderate wounds (2), eagle’s splendor 1st—bless (2), cure light wounds (4), shield of faith 0 (at will)— detect magic, purify food and drink, stabilize, virtue
+    STATISTICS
+    Str 27, Dex 19, Con 24, Int 22, Wis 25, Cha 24 Base Atk +17; CMB +26; CMD 40 Feats Blind-Fight, Cleave, Great Fortitude, Improved Initiative, Improved Sunder, Iron Will, Lightning Reflexes, Power Attack, Toughness Skills Acrobatics +24, Craft (any one) +26, Diplomacy +27, Fly +26, Heal +24, Intimidate+27, Knowledge (history) +23, Knowledge (planes) +26, Knowledge (religion) +26, Perception +27, Sense Motive +27, Stealth +20 Languages Celestial, Draconic, Infernal; truespeech SQ change shape (alter self)
+    SPECIAL ABILITIES
+    Spellcasting
+    Planetars cast divine spells as 16th-level clerics. They do not gain access to domains or other cleric abilities. 
+    """
 
     # replace non-standard dash with a regular ASCII one
     text = text.replace("–", "-")
@@ -112,9 +130,11 @@ def parse_basic_info(stat_block: str, monster: Monster) -> None:
         CR = CR.group(1) if CR.group(1) else CR.group(2)
         monster.CR = float(sum(Fraction(s) for s in CR.split()))
 
-    XP = re.search(r"XP\s+([0-9]+)\s+", stat_block)
+    XP = re.search(r"XP\s+([0-9]+,[0-9]+)\s+|"
+                   r"XP\s+([0-9]+)\s+", stat_block)
     if XP:
-        monster.XP = int(XP.group(1))
+        XP = XP.group(1).replace(",", "")
+        monster.XP = int(XP)
 
     alignment = re.search(r"\s+(LG|NG|CG|LN|N|CN|LE|NE|CE)\s+", stat_block)
     if alignment:
@@ -139,11 +159,18 @@ def parse_basic_info(stat_block: str, monster: Monster) -> None:
 
     senses = re.search(r"Senses([\S\s]+);", stat_block)
     if senses:
-        senses = {sense.lower() for sense in senses.group(1).split()}
-        all_senses = {"blindsense", "blindsight", "greensight", "darkvision",
+        # get rid of problematic punctuation
+        senses = senses.group(1).replace(",", "").replace(".", "")
+
+        # count "detect magic", "detect evil" etc. as senses
+        monster.senses = len(re.findall("detect", senses))
+
+        # all other senses
+        for sense in ["blindsense", "blindsight", "greensight", "darkvision",
                       "lifesense", "low-light vision", "mistsight", "scent",
-                      "thoughtsense", "tremorsense"}
-        monster.senses = len(all_senses & senses)
+                      "thoughtsense", "tremorsense", "true seeing"]:
+            if sense in senses:
+                monster.senses += 1
 
     perception = re.search(r"Perception\s+(0|\+[0-9]+|-[0-9]+)", stat_block)
     if perception:
@@ -241,8 +268,13 @@ def parse_offense(stat_block: str, monster: Monster) -> None:
                                       for attack in melee_attacks])
 
         monster.ranged_attacks_num = len(ranged_attacks)
-        monster.ranged_avg_dmg = mean([attack["avg_dmg"]
-                                       for attack in ranged_attacks])
+        if ranged_attacks:
+            monster.ranged_avg_dmg = mean([attack["avg_dmg"]
+                                           for attack in ranged_attacks])
+        else:
+            monster.ranged_avg_dmg = 0
+
+    # TODO: add space and reach
 
 
 def parse_statistics(stat_block: str, monster: Monster) -> None:
@@ -261,12 +293,11 @@ def parse_statistics(stat_block: str, monster: Monster) -> None:
                            r"Cha\s+([0-9]+)",
                            stat_block)
     if attributes:
-        monster.strength = int(attributes.group(1))
-        monster.dexterity = int(attributes.group(2))
-        monster.constitution = int(attributes.group(3))
-        monster.intelligence = int(attributes.group(4))
-        monster.wisdom = int(attributes.group(5))
-        monster.charisma = int(attributes.group(6))
+        for i, attribute in enumerate(["strength", "dexterity",
+                                       "constitution", "intelligence",
+                                       "wisdom", "charisma"]):
+            if attributes.group(i + 1):
+                setattr(monster, attribute, attributes.group(i + 1))
 
     BAB_CMB_CMD = re.search(r"Base\s+Atk\s+(0|\+[0-9]+|-[0-9]+)[\s\S]+"
                             r"CMB\s+(0|\+[0-9]+|-[0-9]+)[\s\S]+"
@@ -344,14 +375,14 @@ def get_official_monster_links(html_text: str) -> List[str]:
 
 if __name__ == "__main__":
     # get links for monster listings for all monsters on the page
-    html: str = get_page_content(
+    """html: str = get_page_content(
         "https://www.d20pfsrd.com/bestiary/bestiary-hub/monsters-by-cr/") \
         .decode("utf-8")
 
-    monster_links: List[str] = get_official_monster_links(html)
+    monster_links: List[str] = get_official_monster_links(html)"""
 
     # TODO: remove this in final version, it's here for faster testing
-    monster_links = ["https://www.d20pfsrd.com/bestiary/monster-listings/outsiders/tiefling"]
+    monster_links = ["https://www.d20pfsrd.com/bestiary/monster-listings/outsiders/angel/planetar/"]
 
     # if there are less than MAX_THREADS links, spawn less threads, so they are not wasted
     num_threads: int = min(MAX_THREADS, len(monster_links))
