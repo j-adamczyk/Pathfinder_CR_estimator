@@ -1,0 +1,319 @@
+
+
+
+
+
+
+Minotaur – d20PFSRD
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Toggle navigation
+
+
+
+
+
+
+
+
+OGN
+
+
+
+
+d20PFSRD
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+HomeBasics & Ability ScoresAlignment & DescriptionRacesClassesCharacter AdvancementClass ArchetypesCore ClassesBarbarianBardClericDruidFighterMonkPaladinRangerRogueSorcererWizardBase ClassesAlternate ClassesHybrid ClassesUnchained ClassesPrestige ClassesNPC Classes3rd Party ClassesMonster Classes (3pp)Arcane Archetypes (3pp)3rd Party Prestige Classes3rd Party NPC ClassesFeatsSkillsTraitsEquipmentMagic ItemsMagicGamemasteringd20pfsrd.com Publishing StoreBestiaryNPCs(Bestiary) By TypeElder InfluencesAberrationsAnimalsConstructsDragonsFeyHumanoidsMagical BeastsMonstrous HumanoidsKaulvrexOulbaenePelkrevSkreevarVoid GrimAgorthLaurapathisOrzarAhoolAhoolingCharnel WhispererGhast, MythosGhoul, MythosGnorriGrave SageGugHorde RiotLurker In The CryptNightgaunt (3pp)OnyvolanSerpent AlchemistSerpentfolk (3pp)SvathurimWendigo, RavenousGineverPaguroidaDeathsnatcherEuryaleFen MaulerGholeKrampusPsoglavRawheadSaurianTenomeMothmanDoppelgangerMurajauTroglodyte Magic User (3pp)AdaroAdhererAgogweAlaAlseidAnunnakiArachBanderlogBog BeastBog StriderBugganeBurrowlingCalikangCecaeliaCentaurCeratioidiChardaChurrContemplativeCorby, DireCorby, Dire (3pp)Corby, DreadCrabmanDakonDeep OneDeep One, ElderDerhiiDerro Fetal SavantFen WitchFormianGargoyleGarmunchiGegeneesGirtabliluGraeaeGrendelGrimlock (3pp)GriothGronkHagHarpyHumbabaIchthyocentaurInphidiansJorogumoKappaKarkinoiKechKech (3pp)KhaeiLamiaLava ChildMaenadMaftetManimal TriceratopsMedusaMinotaurMinotaur, ElderMinotaur, LabyrinthMinotaur, ScaldingMongrelmanMongrelman (3pp)MorlockNependisNightgauntNingenNingyoOphiduanPopobalaPukwudgieQallupillukRokurokubiRyvenSabosanSahuaginSaumen KarScorpionfolkSelkieSerpentfolkShobhadSkumSlaughterford (Reaperborn)SoucouyantStormghostStygiraTaerTanukiTenomeThriaeTikbalangTroxTsatharTunnel BruteVodyanoiVouivreWitchwyrdYetiYeti (3pp)PlantsOozesOutsidersTemplatesUndeadVermin(Bestiary) Alphabetical(Bestiary) By Challenge Rating(Bestiary) By TerrainIndexes and TablesRules for MonstersBestiary Alternative ListingModulesToolsUnique MonstersAlternative Rule Systems
+
+
+
+
+
+
+
+
+
+
+Home >Bestiary >(Bestiary) By Type >Monstrous Humanoids >                        Minotaur
+
+
+
+
+
+
+ContentsNatural Cunning (Ex)Minotaur EncountersRacial Weapon: Minotaur Double Crossbow (3.5E)Variants3rd Party Publisher Options ( NwP)
+
+
+The glazed bovine eyes of this bull-headed humanoid betray a feral cunning. With the torso of a muscular human, this beast is covered with thick, shaggy fur from the waist down. Its gnarled and callused hands grip the haft of a massive axe, the edge stained from the blood of its previous victims. With a furious snort and a stamp of its hooves, it lowers its deadly horns.
+
+Minotaur (CR 4)
+XP 1,200 CE Large monstrous humanoid Init +0; Senses darkvision 60 ft.; Perception +10
+DEFENSE
+AC 14, touch 9, flat-footed 14 (+5 natural, –1 size) hp 45 (6d10+12) Fort +6, Ref +5, Will +5 Defensive Abilities natural cunning
+OFFENSE
+Speed 30 ft. Melee greataxe +9/+4 (3d6+6/×3) and gore +4 (1d6+2) Space 10 ft.; Reach 10 ft. Special Attacks powerful charge (gore +11, 2d6+6)
+TACTICS
+Before Combat Minotaurs prefer to lure their prey into confusing terrain, such as a maze, sewer, or tunnel system, before setting up an ambush. If possible, they stalk their prey for days before finally committing to battle.
+During Combat Minotaurs typically begin combat by charging the most threatening opponent. They follow this up with devastating swings of their greataxes, using Power Attack if they are hitting easily.
+Morale Out in the open, a minotaur attempts to flee from combat if reduced to 10 hp. If in a maze or other controlled territory, most minotaurs fight to the death.
+STATISTICS
+Str 19, Dex 10, Con 15, Int 7, Wis 10, Cha 8 Base Atk +6; CMB +11; CMD 21 Feats Great Fortitude, Improved Bull Rush, Power Attack Skills Intimidate +5, Perception +10, Stealth +2, Survival +10; Racial Modifiers +4 Perception, +4 Survival Languages Giant
+SPECIAL ABILITIES
+Natural Cunning (Ex)
+Although minotaurs are not especially intelligent, they possess innate cunning and logical ability. This gives them immunity to maze spells and prevents them from ever becoming lost. Further, they are never caught flat-footed.
+
+ECOLOGY
+Environment temperate ruins or underground Organization solitary, pair, or gang (3–4) Treasure standard (greataxe, other treasure)
+Nothing holds a grudge like a minotaur. Scorned by the civilized races centuries ago and born from a deific curse, minotaurs have hunted, slain, and devoured lesser humanoids in retribution for real or imagined slights for as long as anyone can remember. Many cultures have legends of how the first minotaurs were created by vengeful or slighted gods who punished humans by twisting their forms, robbing them of their intellects and beauty, and giving them the heads of bulls. Yet most modern minotaurs hold these legends in contempt and believe that they are not divine mockeries but divine paragons created by a potent and cruel demon lord named Baphomet.
+The traditional minotaur’s lair is a maze, be it a legitimate labyrinth constructed to baffle and confuse, an accidental one such as a city sewer system, or a naturally occurring one such as a tangle of caverns and other underground passageways. Employing their innate cunning, minotaurs use their maze lairs to vex unwary foes who seek them out or who simply stumble into the lairs and become lost, slowly hunting the intruders as they try in vain to find a way out. Only when despair has truly set in does the minotaur move in to strike at its lost victims. When dealing with a group, minotaurs often let one creature escape, to spread the tale of horror and lure others to their mazes in hope of slaying the beasts. Of course, to minotaurs, these would-be heroes make for delicious meals.
+Minotaurs might also be found in the employ of a more powerful monster or evil creature, serving it so long as they can still hunt and dine as they please. Usually, this means guarding some powerful object or valuable location, but it can also be a sort of mercenary work, hunting down the foes of its master.
+Minotaurs are relatively straightforward combatants, using their horns to horribly gore the nearest living creature when combat begins.
+Minotaur Encounters
+Source PCS:ISMC
+Minotaur marauders are much more nimble and confident on the slopes than their bulk would suggest. They are most often encountered stalking prey, including humanoids, in the wilds. Raiding parties of two or more marauders surround their prey, braying and stamping from all sides to confuse, frighten, and scatter. If they occupy higher ground, these minotaurs prefer to attack with their bows, but they are equally competent in melee if a foe survives long enough to engage toe-to-hoof.
+Resistant as they are to spells, energy, and physical damage, labyrinth guardians’ closest thing to a weakness is their single-mindedness. Most are tied to the mazes or tombs in which they dwell and will not chase foes out into the light. Tangle tenders hold similar sway over their lairs, but act more with cunning than with brute force. These devious trapsmiths delight in building wicked mechanical devices to harm those that dare intrude on their mazes.
+Minotaur prophets are much more brutal than humanoid cultists. Through fear, manipulation, and reverence, the prophets command disproportionate respect from the Templars of the Ivory Labyrinth, a secret cabal of the demon lord’s most devious worshipers. The prophets wield their clout in the same ways that they wield their brass glaives of office—by striking from a distance.
+Racial Weapon: Minotaur Double Crossbow (3.5E)
+Minotaurs have a love of complicated things, and the double crossbow is one of their favorites. This heavy weapon fires a pair of iron-tipped bolts with deadly accuracy. Due to its size and weight, however, non-proficient wielders suffer a –8 penalty on their attack rolls. Even proficient wielders take a –2 penalty on their attack rolls. If the attack is successful, the target takes the listed damage twice, although critical hits and precision-based damage are only applied to one of the bolts.
+Reloading a double crossbow takes 2 standard actions (one for each bolt), although the Rapid Reload feat reduces this to 2 move actions (meaning that it can be accomplished in 1 round).
+If you’d like to equip a minotaur with one of these, add a “Ranged” line to the Offense section of the Minotaur like the following (assuming as a racial weapon no additional proficiency feats are required for a minotaur wielder):
+Ranged minotaur double crossbow +4 (4d8 19–20/x2 [critical to 2d8 damage only])
+Source Classic Monsters Revisited. Copyright 2008, Paizo Publishing, LLC; Authors: Wolfgang Baur, Jason Bulmahn, Joshua J. Frost, James Jacobs, Nicolas Logue, Mike McArtor, James L. Sutter, Greg A. Vaughan, Jeremy Walker.
+Variants
+Dread skeleton elite minotaur (CR 6)
+3rd Party Publisher Options ( NwP)
+When captured by a monster trainer, minotaurs grant the trainer access to new spells.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Patreon Supporters
+
+
+
+ Latest Pathfinder products in the Open Gaming StoreSpheres Apocrypha: Astrologian ScholarThe Antipaladin's AlmanacLegendary WizardsLegendary BardsPathfinder 1e: Horror Adventures - Pocket Edition
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Become an Editor!
+Support
+Open Gaming
+Subscribe to Our
+Newsletter
+Sell in theOpen Gaming Store
+Report a
+Bug or Issue
+
+
+
+
+
+
+
+
+
+
+
+New Pages
+Recent Changes
+Legal Information/Open Game License
+Fan Labs
+Character Sheets
+Downloads
+FAQ
+
+Report a Problem
+
+
+
+
+
+
+Shop the Open Gaming Store!
+Sell at the Open Gaming Store!
+Back my Patreon!
+Get Published
+
+
+
+
+
+
+
+
+
+
+Follow @OpenGamingStore
+
+
+
+
+
+
+
+
+
+
+
+
+Check out our other SRD sites!
+                            Traveller SRD
+                 |                 Swords and Wizardry SRD
+                 |                 5th Edition SRD
+                 |                 Dungeon World SRD
+                 |                 13th Age SRD
+                 |                 d20HeroSRD
+                 |                 The Modern Path SRD
+                 |                 d20PFSRD
+                 |                 3.5e SRD
+                 |                 GumshoeSRD
+                 |                 FateCoreSRD
+                 |                 Starjammer SRD
+                 |                 OGN Articles
+                 |                 Design Finder 2018
+                 |                 Fudge SRD
+                 |                 Here Be Monsters
+                 |                 d20 Anime SRD
+                 |                 PF2 SRD
+
+
+                    This site may earn affiliate commissions from the links on this page.
+
+
+                    OGN SRD v1.8.1 using Bootstrap
+
+
+New Pages | Recent Changes | Privacy Policy
+
+
+
+

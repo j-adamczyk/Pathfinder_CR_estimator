@@ -1,16 +1,15 @@
 from concurrent.futures import ThreadPoolExecutor
 from fractions import Fraction
-import re
 from statistics import mean
-from typing import List, Match, Optional, Union
+from typing import List, Match, Optional
 
 from bs4 import BeautifulSoup
 
-from src.scraper.model import Monster
-from src.scraper.utils import *
+from web_scraper.src.model import Monster
+from web_scraper.src.utils import *
 
 MAX_THREADS = 30
-all_feats_names = get_feats_names()
+all_feats_names = get_feats_names()  # threads only read this
 
 
 def parse_monster_page(link: str) -> Union[Monster, List[Monster]]:
@@ -20,39 +19,20 @@ def parse_monster_page(link: str) -> Union[Monster, List[Monster]]:
     :param link: hyperlink to monster page
     :return: either a single monster info or list of monsters
     """
-    """content_bytes: bytes = get_page_content(link)
+    content_bytes: bytes = get_page_content(link)
     soup = BeautifulSoup(content_bytes, "html.parser")
     html: str = content_bytes.decode("utf-8")
-    text: str = soup.get_text()"""
+    text: str = soup.get_text()
 
-    text = """
-    Planetar CR 16
-    XP 76,800 NG Large outsider (angel, extraplanar, good) Init +8; Senses darkvision 60 ft., detect evil, detect snares and pits, low-light vision, true seeing; Perception +27 Aura protective aura
-    DEFENSE
-    AC 32, touch 13, flat-footed 28 (+4 Dex, +19 natural, -1 size; +4 deflection vs. evil) hp 229 (17d10+136); regeneration 10 (evil weapons and effects) Fort +19, Ref +11, Will +19; +4 vs. poison, +4 resistance vs. evil DR 10/evil; Immune acid, cold, petrification; Resist electricity 10, fire 10; SR 27
-    OFFENSE
-    Speed 30 ft., fly 90 ft. (good) Melee +3 holy greatsword +27/+22/+17 (3d6+15/19-20) or slam +24 (2d8+12)  Space 10 ft.; Reach 10 ft.
-    Spell-Like Abilities (CL 16th)
-     Constant—detect evil, detect snares and pits, discern lies (DC 20), true seeing At will—continual flame, dispel magic, holy smite (DC 21), invisibility (self only), lesser restoration, remove curse, remove disease, remove fear (DC 18), speak with dead (DC 20) 3/day—blade barrier (DC 21), flame strike (DC 22), power word stun, raise dead, waves of fatigue 1/day—earthquake (DC 25), greater restoration, mass charm monster (DC 25), waves of exhaustion
-    Cleric Spells Prepared (CL 16th)
-     8th—earthquake (DC 25), fire storm (DC 25) 7th—holy word (DC 24), regenerate (2) 6th—banishment(DC 23), greater dispel magic, heal, mass cure moderate wounds (DC 23) 5th—break enchantment, dispel evil (2, DC 22), plane shift (DC 22), righteous might 4th—death ward, dismissal (DC 21), neutralize poison (DC 21), summon monster IV 3rd—cure serious wounds (2), daylight, invisibility purge, summon monster III, wind wall 2nd—align weapon (2), bear’s endurance (2), cure moderate wounds (2), eagle’s splendor 1st—bless (2), cure light wounds (4), shield of faith 0 (at will)— detect magic, purify food and drink, stabilize, virtue
-    STATISTICS
-    Str 27, Dex 19, Con 24, Int 22, Wis 25, Cha 24 Base Atk +17; CMB +26; CMD 40 Feats Blind-Fight, Cleave, Great Fortitude, Improved Initiative, Improved Sunder, Iron Will, Lightning Reflexes, Power Attack, Toughness Skills Acrobatics +24, Craft (any one) +26, Diplomacy +27, Fly +26, Heal +24, Intimidate+27, Knowledge (history) +23, Knowledge (planes) +26, Knowledge (religion) +26, Perception +27, Sense Motive +27, Stealth +20 Languages Celestial, Draconic, Infernal; truespeech SQ change shape (alter self)
-    SPECIAL ABILITIES
-    Spellcasting
-    Planetars cast divine spells as 16th-level clerics. They do not gain access to domains or other cleric abilities. 
-    """
+    print(text)
 
     # replace non-standard dash with a regular ASCII one
     text = text.replace("–", "-")
 
     # reduce text to the interesting part
-    stat_block = re.search(r"(CR\s+[0-9/]+\s+XP[\S\s]*?)SPECIAL ABILITIES|"
-                           r"(CR\s+[0-9/]+\)\s+XP[.\S\s]*?)SPECIAL ABILITIES|"
-                           r"(CR\s+[0-9/]+\s+XP[\S\s]*?STATISTICS[\S\s]*?)\n\n|"
-                           r"(CR\s+[0-9/]+\)\s+XP[\S\s]*?STATISTICS[\S\s]*?)\n\n|"
-                           r"(CR\s+[0-9/]+\s+XP[\S\s]*?STATISTICS[\S\s]*?)|"
-                           r"(CR\s+[0-9/]+\)\s+XP[\S\s]*?STATISTICS[\S\s]*)",
+    stat_block = re.search(r"(CR\s+[0-9/]+\)?\s+XP[\S\s]*?)SPECIAL ABILITIES|"
+                           r"(CR\s+[0-9/]+\)?\s+XP[\S\s]*?STATISTICS[\S\s]*?)\n\n|"
+                           r"(CR\s+[0-9/]+\)?\s+XP[\S\s]*?STATISTICS[\S\s]*)",
                            text)
 
     if not stat_block:
@@ -69,22 +49,22 @@ def parse_monster_page(link: str) -> Union[Monster, List[Monster]]:
     monster.link = link
     stat_block = stat_block.group()
 
-    name = re.search(r"(.+?) - d20PFSRD", text)
+    name = re.search(r"\n(.+)[ ]+\(?CR", text)
     if name:
-        monster.name = name.group(1)
+        monster.name = name.group(1).strip()
 
     # division into separate blocks for parsing makes further regrexes faster
-    blocks = re.match(r"([\s\S]+)"
-                      r"DEFENSE([\s\S]+)"
-                      r"OFFENSE([\s\S]+)"
-                      r"STATISTICS([\s\S]+)", stat_block)
+    basic_info_block = re.search(r"([\s\S]+)DEFENSE", stat_block).group(1)
+    defense_block = re.search(r"DEFENSE([\s\S]+)OFFENSE", stat_block).group(1)
+    offense_block = re.search(r"OFFENSE([\s\S]+)(TACTICS|STATISTICS)",
+                              stat_block).group(1)
+    statistics_block = re.search(r"STATISTICS([\s\S]+)", stat_block).group(1)
 
-    parse_basic_info(blocks.group(1), monster)
-    parse_defense(blocks.group(2), monster)
-    parse_offense(blocks.group(3), monster)
-    parse_statistics(blocks.group(4), monster)
+    parse_basic_info(basic_info_block, monster)
+    parse_defense(defense_block, monster)
+    parse_offense(offense_block, monster)
+    parse_statistics(statistics_block, monster)
 
-    print(monster)
     return monster
 
 
@@ -123,7 +103,9 @@ def parse_basic_info(stat_block: str, monster: Monster) -> None:
     :param stat_block: string with the monster statistics block
     :param monster: Monster class object to fill
     """
-    CR = re.search(r"CR\s+(.+)\)\s+|CR\s+(.+)\s+", stat_block)
+    # does NOT work with optional closing paren, i. e. \)?
+    CR = re.search(r"CR\s+(.+)\)\s+|"
+                   r"CR\s+(.+)\s+", stat_block)
     if CR:
         # this handles fractional CRs through interpreting all numbers as
         # (potentially space-divided) Fraction strings
@@ -133,7 +115,8 @@ def parse_basic_info(stat_block: str, monster: Monster) -> None:
     XP = re.search(r"XP\s+([0-9]+,[0-9]+)\s+|"
                    r"XP\s+([0-9]+)\s+", stat_block)
     if XP:
-        XP = XP.group(1).replace(",", "")
+        XP = XP.group(1) if XP.group(1) else XP.group(2)
+        XP = XP.replace(",", "")
         monster.XP = int(XP)
 
     alignment = re.search(r"\s+(LG|NG|CG|LN|N|CN|LE|NE|CE)\s+", stat_block)
@@ -185,9 +168,9 @@ def parse_defense(stat_block: str, monster: Monster) -> None:
     :param stat_block: string with the monster statistics block
     :param monster: Monster class object to fill
     """
-    armor = re.search(r"AC\s+(0|[0-9]+)[\s\S]+"
-                      r"touch\s+(0|[0-9]+)[\s\S]+"
-                      r"flat-footed\s+(0|[0-9]+)",
+    armor = re.search(r"AC\s+([0-9]+)[\s\S]+"
+                      r"touch\s+([0-9]+)[\s\S]+"
+                      r"flat-footed\s+([0-9]+)",
                       stat_block)
     if armor:
         monster.AC = int(armor.group(1))
@@ -225,9 +208,9 @@ def parse_offense(stat_block: str, monster: Monster) -> None:
     for movement_type in ["burrow", "climb", "fly"]:
         movement = re.search(movement_type + r"\s+([0-9]+)", stat_block)
         if movement:
-            setattr(monster, movement_type, movement.group(1))
+            setattr(monster, movement_type, int(movement.group(1)))
 
-    attacks = re.search(r"Melee([\s\S]+)|Ranged([\s\S]+)", stat_block)
+    attacks = re.search(r"(Melee|Ranged)([\s\S]+)", stat_block)
     words_to_remove = {"Melee ", "Ranged ", " and ", " or "}
     translation = "|".join(words_to_remove)
     if attacks:
@@ -249,6 +232,12 @@ def parse_offense(stat_block: str, monster: Monster) -> None:
             melee_attacks = attacks
             ranged_attacks = []
 
+        # check which attacks are alternative - next attack will have " or"
+        melee_alt = [True if " or " in attack else False
+                     for attack in melee_attacks]
+        ranged_alt = [True if " or " in attack else False
+                      for attack in ranged_attacks]
+
         melee_attacks = [re.sub(translation, "", attack).strip()
                          for attack in melee_attacks]
         ranged_attacks = [re.sub(translation, "", attack).strip()
@@ -259,6 +248,8 @@ def parse_offense(stat_block: str, monster: Monster) -> None:
         ranged_attacks = [parse_single_attack_type(attack)
                           for attack in ranged_attacks]
 
+        print(melee_attacks)
+
         monster.highest_attack_bonus = max([attack["highest_bonus"]
                                             for attack
                                             in melee_attacks + ranged_attacks])
@@ -266,15 +257,23 @@ def parse_offense(stat_block: str, monster: Monster) -> None:
         monster.melee_attacks_num = len(melee_attacks)
         monster.melee_avg_dmg = mean([attack["avg_dmg"]
                                       for attack in melee_attacks])
+        monster.melee_avg_dmg = round(monster.melee_avg_dmg * 2) / 2
 
         monster.ranged_attacks_num = len(ranged_attacks)
         if ranged_attacks:
             monster.ranged_avg_dmg = mean([attack["avg_dmg"]
                                            for attack in ranged_attacks])
+            monster.ranged_avg_dmg = round(monster.ranged_avg_dmg * 2) / 2
         else:
             monster.ranged_avg_dmg = 0
 
-    # TODO: add space and reach
+    space = re.search(r"Space\s+([0-9]+)", stat_block)
+    if space:
+        monster.space = int(space.group(1))
+
+    reach = re.search(r"Reach\s+([0-9]+)", stat_block)
+    if reach:
+        monster.reach = int(reach.group(1))
 
 
 def parse_statistics(stat_block: str, monster: Monster) -> None:
@@ -297,7 +296,7 @@ def parse_statistics(stat_block: str, monster: Monster) -> None:
                                        "constitution", "intelligence",
                                        "wisdom", "charisma"]):
             if attributes.group(i + 1):
-                setattr(monster, attribute, attributes.group(i + 1))
+                setattr(monster, attribute, int(attributes.group(i + 1)))
 
     BAB_CMB_CMD = re.search(r"Base\s+Atk\s+(0|\+[0-9]+|-[0-9]+)[\s\S]+"
                             r"CMB\s+(0|\+[0-9]+|-[0-9]+)[\s\S]+"
@@ -309,7 +308,7 @@ def parse_statistics(stat_block: str, monster: Monster) -> None:
 
     feats = re.search(r"Feats([\s\S]+?)Skills", stat_block)
     if feats:
-        feats = feats.group(1).strip().split()
+        feats = feats.group(1).strip().replace(",", "").split()
         monster.feats_num = 0
         # most feats have 1 or 2 words, the longest one has 6 words
         # first try to find and remove 1-word feats, than 2-word etc.
@@ -328,20 +327,18 @@ def parse_statistics(stat_block: str, monster: Monster) -> None:
             feats = [feat for i, feat in enumerate(feats) if i not in to_remove]
 
     skills = re.search(r"Skills([\s\S]+)", stat_block)
-    skills_names = {"Acrobatics", "Appraise", "Bluff", "Climb", "Craft",
-                    "Diplomacy", "Disable Device", "Disguise", "Escape Artist",
-                    "Fly", "Handle Animal", "Heal", "Intimidate",
-                    "Knowledge (arcana)", "Knowledge (dungeoneering)",
-                    "Knowledge (engineering)", "Knowledge (geography)",
-                    "Knowledge (history)", "Knowledge (local)",
-                    "Knowledge (nature)", "Knowledge (nobility)",
-                    "Knowledge (planes)", "Knowledge (religion)", "Linguistics",
+    skills_names = {"Acrobatics", "Appraise", "Bluff", "Climb", "Diplomacy",
+                    "Disable Device", "Disguise", "Escape Artist", "Fly",
+                    "Handle Animal", "Heal", "Intimidate", "Linguistics",
                     "Perception", "Perform", "Profession", "Ride",
-                    "Sense Motive", "Sleight of Hand", "Spellcraft", "Stealth",
-                    "Survival", "Swim", "Use Magic Device"}
+                    "Sense Motive", "Sleight of Hand", "Spellcraft",
+                    "Stealth", "Survival", "Swim", "Use Magic Device"}
     if skills:
         skills = skills.group(1)
-        monster.skills_num = 0
+        # there are many Knowledge skills (e. g. Knowledge (nature)), so we
+        # can just count this word
+        monster.skills_num = len(re.findall("Knowledge", skills))
+        monster.skills_num += len(re.findall("Craft", skills))
         for skill in skills_names:
             if skill in skills:
                 monster.skills_num += 1
@@ -382,7 +379,7 @@ if __name__ == "__main__":
     monster_links: List[str] = get_official_monster_links(html)"""
 
     # TODO: remove this in final version, it's here for faster testing
-    monster_links = ["https://www.d20pfsrd.com/bestiary/monster-listings/outsiders/angel/planetar/"]
+    monster_links = ["https://www.d20pfsrd.com/bestiary/monster-listings/outsiders/tiefling/"]
 
     # if there are less than MAX_THREADS links, spawn less threads, so they are not wasted
     num_threads: int = min(MAX_THREADS, len(monster_links))

@@ -1,0 +1,360 @@
+
+
+Tiefling – d20PFSRD
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Toggle navigation
+
+
+
+
+
+
+
+
+OGN
+
+
+
+
+d20PFSRD
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+HomeBasics & Ability ScoresAlignment & DescriptionRacesClassesCharacter AdvancementClass ArchetypesCore ClassesBarbarianBardClericDruidFighterMonkPaladinRangerRogueSorcererWizardBase ClassesAlternate ClassesHybrid ClassesUnchained ClassesPrestige ClassesNPC Classes3rd Party ClassesMonster Classes (3pp)Arcane Archetypes (3pp)3rd Party Prestige Classes3rd Party NPC ClassesFeatsSkillsTraitsEquipmentMagic ItemsMagicGamemasteringd20pfsrd.com Publishing StoreBestiaryNPCs(Bestiary) By TypeElder InfluencesAberrationsAnimalsConstructsDragonsFeyHumanoidsMagical BeastsMonstrous HumanoidsPlantsOozesOutsidersDiamantemLoranPallid AngelPetitionersSceazirInfernorSabbat PrancerSoulless DestroyerUmbralobeYmirBlack GoatKaiju, EarthkingNightmare ArtistDryad, Half-FiendDwarf, Dark ScionHellion, IrefulImplacable StalkerAphoriteAravaxAsphyxAvatar of AlkumuotoAxial MonitorCynosomaDimensional ShamblerDuskwalkerEmpusaFantionetteFeral Titan LordGanziGishvitIriiJinn WizardJoyful ThingMadness SlugRakasa BatuShadow Animal LionShield Warden, GreaterSishkansetSuffraganVault BuilderVault KeeperVidreWatcherWisagatcakWrackwormLiving DoldrumsOnyx ScourgePortunusZarxorinApocalypse HorseDaitenguHorseman of the ApocalypseOzimatQlippothNephleiOnkushuAgrawghOwbCouatlShining ChildGloomwingAasimarAbyssal Larva (3pp)AchaieraiAchaierai (3pp)AeonsAgathionsAhkhatAndrenjinyi (3pp)AnemosAngelsAnimal Lords (3pp)Animate DreamAoandonApkalluApocalypse LocustArchonsArrowhawk (3pp)Asakku (3pp)Astral LeviathanAstral Shark (3pp)AsuraAtaxianAvernal GhoulAxiomiteAzatasAzerBaregaraBarghestBasilisk, Abyssal (3pp)BebilithBisha Ga TsukuBlack JinniBlack MaggaBlood QueenBroken Soul LillendBurleevBurning DervishCaulbornCayhoundCaypupCerberiCervine ProtectorChalkostChaos BeastComozant WyrdD’ziriakDaemonsDahzaganDemodandDemodand (3pp)Demonic KnightDemonsDenizen of LengDevil SteedDevilsDimensional ShamblerDivine HeraldsDivsDlurgravenDorvaeDream Eater (3pp)Dream SpectreDream Spectre (3pp)Drelb (Haunting Custodian)Ei'risai (3pp)Eidolon, UnfetteredEinherjiElementalsElohimEmpyreal LordEtiainenFeargauntFetchlingFire Nymph (3pp)Fire Snake (3pp)Foo DogFoo LionFormians (3pp)GaripanGarudaGenieGeon (3pp)Gloomwing (3pp)GorgoniGreater Tengu, YamabushiGuardian SpiritHalf-Celestial UnicornHalf-Fiend MinotaurHell HoundHellcatHound of TindalosHowlerHypnalisIfritImpunduluInevitableJyotiKakuen-TakaKamiKarumzekKirin (3pp)KytonLamhigynLejnth (3pp)MagminMagmoidMagnesium SpiritManasaputraManitouMemory ChildMephitMercaneMidnight PeddlerMoon DogMoon Dog (3pp)Mother of OblivionMudlordNephilimNethersparkNightmareOniOreadOrshevalPavbaghaPeriPhantom, UnfetteredProscriberProteanProtector (3pp)PsychementalPsychopompRaijuRakshasaRastRed Sun (3pp)Sabrewing (3pp)SahkilSalamanderSarcovaltScanderig (Forgefiend)Scarlet WalkerSceaduinarShabtiShadow MastiffShaeShikigamiShinigamiShulsagaSlaad Lord of Entropy (Chaos Lord of Entropy)Slaad Lord of the Insane (Chaos Lord of the Insane)Slag WormSoul EaterSoul Eater (3pp)SoulsliverStone MaidenSuliSwarm, HeatSylphTenebrous Purple WormTenebrous WormThe Mantis God (3.5)TieflingTime Flayer (3pp)TitanTojanidaTojanida (3pp)TritonTrue Gorgon, Euryale (3pp)True Gorgon, Sthenno (3PP)TsukumogamiTurulUmbral ShepherdUndineUrdefhanValkyrieVargouilleVeelaVendenopterixVescavor QueenVescavor SwarmWakandagiWang Liang (3pp)Warped OneWeirdsWendigoWyspXacarbaXillXocothianXornYeth HoundYhohmZentragtZhyenTemplatesUndeadVermin(Bestiary) Alphabetical(Bestiary) By Challenge Rating(Bestiary) By TerrainIndexes and TablesRules for MonstersBestiary Alternative ListingModulesToolsUnique MonstersAlternative Rule Systems 
+
+
+
+
+
+
+
+
+
+
+Home >Bestiary >(Bestiary) By Type >Outsiders >                        Tiefling
+
+ 
+
+
+
+
+
+
+
+
+This lanky man sneers as he draws his sword. Tiny horns and a barbed tail reveal that he is something more than human.
+
+Tiefling (CR 1/2)
+XP 200 Tiefling rogue 1 NE Medium outsider (native) Init +3; Senses darkvision 60 ft.; Perception +5 
+DEFENSE
+ AC 16, touch 13, flat-footed 13 (+3 armor, +3 Dex) hp 10 (1d8+2)  Fort +2, Ref +5, Will +1 Resist cold 5, electricity 5, fire 5 
+OFFENSE
+Speed 30 ft. Melee short sword +3 (1d6+1/19–20) Ranged light crossbow +3 (1d8/19–20)  Special Attacks sneak attack +1d6 Spell-Like Abilities (CL 1st) 
+
+   1/day— 
+  darkness
+
+
+
+
+
+STATISTICS
+
+Str 13, 
+ Dex 17, 
+ Con 14, 
+ Int 12, 
+ Wis 12, 
+ Cha 6 
+ 
+Base Atk +0; 
+ CMB +1; 
+ CMD 14 
+ 
+Feats
+Weapon Finesse
+
+Skills
+Acrobatics +6, 
+ Bluff +4, 
+ Disable Device +6, 
+ Escape Artist +6, 
+ Intimidate +2, 
+ Perception +5, 
+ Sense Motive +5, 
+ Sleight of Hand +6, 
+ Stealth +8; 
+ Racial Modifiers +2 
+ Bluff, +2 
+ Stealth
+
+Languages Abyssal, Common, Infernal 
+ 
+SQ fiendish sorcery, trapfinding 
+ 
+
+SPECIAL ABILITIES
+
+Fiendish Sorcery (Ex)  Tiefling sorcerers with the 
+ Abyssal or 
+ Infernal bloodline treat their 
+ Charisma score as 2 points higher for all 
+ sorcerer class abilities. 
+ 
+
+
+
+
+
+Tiefling Characters
+
+
+
+ Tieflings are defined by their class levels—they do not possess racial HD. They have the following racial traits. 
+ 
+
++2 Dexterity, +2 Intelligence, –2 Charisma: Tieflings are quick in body and mind, but are inherently strange.
+Darkvision: Tieflings see in the dark up to 60 feet.
+Skilled: Tieflings have a +2 racial bonus on Bluff and Stealth checks.
+Spell-Like Ability: Tieflings can use darkness once per day as a spell-like ability. The caster level for this ability equals the tiefling’s class level.
+Fiendish Resistance: Tieflings have cold resistance 5, electricity resistance 5, and fire resistance 5.
+Fiendish Sorcery: Tiefling sorcerers with the Abyssal or Infernal bloodline treat their Charisma score as 2 points higher for all sorcerer class abilities.
+Languages: Tieflings begin play speaking Common and either Abyssal or Infernal. Tieflings with high Intelligence scores can choose any of the following: Abyssal, Draconic, Dwarven, Elven, Gnome, Goblin, Halfling, Infernal, and Orc.
+
+  
+  
+ECOLOGY
+ Environment any land  Organization solitary, pair, or gang (3–5)  Treasure NPC gear (studded leather armor, short sword, light crossbow with 20 bolts)  
+Tieflings are humans with demonic, devilish, or other evil outsider blood in their ancestry. Often persecuted for their strange appearance and unnatural mannerisms, most tieflings disguise their nature or are forced to live on the fringes or underbelly of civilized society. Though they are not born evil, it is an easy path for them to find, especially as most suffer at the hands of “normal” folks while growing up. Tieflings look mostly human except for some physical traits that reveal their strange heritage. 
+ 
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+ 
+
+
+
+
+
+
+
+
+
+Patreon Supporters
+
+
+
+ Latest Pathfinder products in the Open Gaming StoreSpheres Apocrypha: Astrologian ScholarThe Antipaladin's AlmanacLegendary WizardsLegendary BardsPathfinder 1e: Horror Adventures - Pocket Edition 
+
+
+
+
+ 
+ 
+
+
+
+ 
+ 
+
+
+ 
+
+
+
+
+
+
+
+
+
+Become an Editor!
+Support
+Open Gaming
+Subscribe to Our
+Newsletter
+Sell in theOpen Gaming Store
+Report a
+Bug or Issue
+
+
+
+ 
+
+
+
+
+
+
+
+New Pages 
+Recent Changes 
+Legal Information/Open Game License
+Fan Labs 
+Character Sheets 
+Downloads  
+FAQ
+
+Report a Problem
+
+ 
+
+
+
+
+Shop the Open Gaming Store!  
+Sell at the Open Gaming Store!
+Back my Patreon!  
+Get Published
+
+ 
+
+
+
+
+
+
+
+
+Follow @OpenGamingStore
+
+ 
+
+ 
+ 
+
+
+
+
+
+
+
+Check out our other SRD sites!
+                            Traveller SRD 
+                 |                 Swords and Wizardry SRD 
+                 |                 5th Edition SRD 
+                 |                 Dungeon World SRD 
+                 |                 13th Age SRD 
+                 |                 d20HeroSRD 
+                 |                 The Modern Path SRD 
+                 |                 d20PFSRD 
+                 |                 3.5e SRD 
+                 |                 GumshoeSRD 
+                 |                 FateCoreSRD 
+                 |                 Starjammer SRD 
+                 |                 OGN Articles 
+                 |                 Design Finder 2018 
+                 |                 Fudge SRD 
+                 |                 Here Be Monsters 
+                 |                 d20 Anime SRD 
+                 |                 PF2 SRD
+
+
+                    This site may earn affiliate commissions from the links on this page.
+                
+
+                    OGN SRD v1.8.1 using Bootstrap
+
+
+New Pages | Recent Changes | Privacy Policy
+
+

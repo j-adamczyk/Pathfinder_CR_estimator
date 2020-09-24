@@ -44,8 +44,8 @@ class Monster:
         self.ranged_attacks_num: int = 0
         self.ranged_avg_dmg: int = 0
 
-        self.space: Union[int, None] = None
-        self.reach: Union[int, None] = None
+        self.space: int = 5
+        self.reach: int = 5
 
         # statistics
         self.strength: Union[int, None] = None

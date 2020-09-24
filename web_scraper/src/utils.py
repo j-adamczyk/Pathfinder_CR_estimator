@@ -105,8 +105,8 @@ def get_crit_info(text: str) -> Tuple[float, int]:
 def parse_single_attack_type(text: str) -> Dict[str, Union[int, float]]:
     """
     Parses single attack type string in format:
-    ATTACK NAME +X/+Y/+Z/.../-A/-B (AdB+C/19-20
-    e. g. short sword +3 (1d6+1/19-20
+    ATTACK NAME +X/+Y/+Z/.../-A/-B (AdB+C/19-20)
+    e. g. short sword +3 (1d6+1/19-20)
 
     Returned dict:
     - "attack_num" - number of attacks, e. g. for +5/+3/-5 it would be 3

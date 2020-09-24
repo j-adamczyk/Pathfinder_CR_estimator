@@ -1,9 +1,8 @@
 import math
 
 import pytest
-import requests
 
-from src.scraper.utils import *
+from web_scraper.src.utils import *
 
 
 def test_existing_page():
