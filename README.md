@@ -1,6 +1,6 @@
 # Pathfinder CR estimator
 
-Warning: under active development
+Warning: under active development, currently in creating dataset part
 
 ## Introduction
 Pathfinder is a very popular and my personal favorite pen&paper RPG (Role-Playing Game). Frequent task and challenge for Game Masters (game designers and narrators) is monster creation, especially estimating monster power relative to level of players.
