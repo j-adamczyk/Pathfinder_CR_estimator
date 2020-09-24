@@ -1,6 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor
 from fractions import Fraction
-from statistics import mean
+from statistics import median
 from typing import List, Match, Optional
 
 from bs4 import BeautifulSoup
@@ -24,10 +24,38 @@ def parse_monster_page(link: str) -> Union[Monster, List[Monster]]:
     html: str = content_bytes.decode("utf-8")
     text: str = soup.get_text()
 
-    print(text)
-
     # replace non-standard dash with a regular ASCII one
     text = text.replace("–", "-")
+
+    text = """
+    
+    Muscular, bald, and tall, this humanoid creature has emerald skin and two pairs of shining, white-feathered wings.
+
+    Planetar CR 16
+    XP 76,800 NG Large outsider (angel, extraplanar, good) Init +8; Senses darkvision 60 ft., detect evil, detect snares and pits, low-light vision, true seeing; Perception +27 Aura protective aura
+    DEFENSE
+    AC 32, touch 13, flat-footed 28 (+4 Dex, +19 natural, –1 size; +4 deflection vs. evil) hp 229 (17d10+136); regeneration 10 (evil weapons and effects) Fort +19, Ref +11, Will +19; +4 vs. poison, +4 resistance vs. evil DR 10/evil; Immune acid, cold, petrification; Resist electricity 10, fire 10; SR 27
+    OFFENSE
+    Speed 30 ft., fly 90 ft. (good) Melee +3 holy greatsword +27/+22/+17 (3d6+15/19–20) or slam +24 (2d8+12)  Space 10 ft.; Reach 10 ft.
+    Spell-Like Abilities (CL 16th)
+     Constant—detect evil, detect snares and pits, discern lies (DC 20), true seeing At will—continual flame, dispel magic, holy smite (DC 21), invisibility (self only), lesser restoration, remove curse, remove disease, remove fear (DC 18), speak with dead (DC 20) 3/day—blade barrier (DC 21), flame strike (DC 22), power word stun, raise dead, waves of fatigue 1/day—earthquake (DC 25), greater restoration, mass charm monster (DC 25), waves of exhaustion
+    Cleric Spells Prepared (CL 16th)
+     8th—earthquake (DC 25), fire storm (DC 25) 7th—holy word (DC 24), regenerate (2) 6th—banishment(DC 23), greater dispel magic, heal, mass cure moderate wounds (DC 23) 5th—break enchantment, dispel evil (2, DC 22), plane shift (DC 22), righteous might 4th—death ward, dismissal (DC 21), neutralize poison (DC 21), summon monster IV 3rd—cure serious wounds (2), daylight, invisibility purge, summon monster III, wind wall 2nd—align weapon (2), bear’s endurance (2), cure moderate wounds (2), eagle’s splendor 1st—bless (2), cure light wounds (4), shield of faith 0 (at will)— detect magic, purify food and drink, stabilize, virtue
+    STATISTICS
+    Str 27, Dex 19, Con 24, Int 22, Wis 25, Cha 24 Base Atk +17; CMB +26; CMD 40 Feats Blind-Fight, Cleave, Great Fortitude, Improved Initiative, Improved Sunder, Iron Will, Lightning Reflexes, Power Attack, Toughness Skills Acrobatics +24, Craft (any one) +26, Diplomacy +27, Fly +26, Heal +24, Intimidate+27, Knowledge (history) +23, Knowledge (planes) +26, Knowledge (religion) +26, Perception +27, Sense Motive +27, Stealth +20 Languages Celestial, Draconic, Infernal; truespeech SQ change shape (alter self)
+    SPECIAL ABILITIES
+    Spellcasting
+    Planetars cast divine spells as 16th-level clerics. They do not gain access to domains or other cleric abilities. 
+    
+    ECOLOGY
+    Environment any good-aligned plane Organization solitary or pair Treasure double (+3 holy greatsword) 
+    Planetars are the generals of celestial armies. A typical planetar stands 9 feet tall and weighs 500 pounds. They focus on combat and the destruction of evil; though they understand diplomacy, a planetar would rather lead the charge against an army of fiends than negotiate peace.
+    
+    Section 15: Copyright Notice
+    
+    Pathfinder RPG Bestiary. Copyright 2009, Paizo Publishing, LLC; Author: Jason Bulmahn, based on material by Jonathan Tweet, Monte Cook, and Skip Williams.
+
+    """
 
     # reduce text to the interesting part
     stat_block = re.search(r"(CR\s+[0-9/]+\)?\s+XP[\S\s]*?)SPECIAL ABILITIES|"
@@ -248,24 +276,36 @@ def parse_offense(stat_block: str, monster: Monster) -> None:
         ranged_attacks = [parse_single_attack_type(attack)
                           for attack in ranged_attacks]
 
-        print(melee_attacks)
-
         monster.highest_attack_bonus = max([attack["highest_bonus"]
                                             for attack
                                             in melee_attacks + ranged_attacks])
 
-        monster.melee_attacks_num = len(melee_attacks)
-        monster.melee_avg_dmg = mean([attack["avg_dmg"]
-                                      for attack in melee_attacks])
-        monster.melee_avg_dmg = round(monster.melee_avg_dmg * 2) / 2
+        print()
+        print(melee_attacks)
+        print(melee_alt)
 
-        monster.ranged_attacks_num = len(ranged_attacks)
-        if ranged_attacks:
-            monster.ranged_avg_dmg = mean([attack["avg_dmg"]
-                                           for attack in ranged_attacks])
-            monster.ranged_avg_dmg = round(monster.ranged_avg_dmg * 2) / 2
+        melee_attacks = choose_alt_attacks(melee_attacks, melee_alt)
+        ranged_attacks = choose_alt_attacks(ranged_attacks, ranged_alt)
+
+        monster.melee_attacks_num = sum([attack["attacks_num"]
+                                         for attack in melee_attacks])
+        if melee_attacks:
+            damages = [[attack["avg_dmg"]] * attack["attacks_num"]
+                       for attack in melee_attacks]
+            damages = flatten(damages)
+            monster.melee_median_dmg = median(damages)
         else:
-            monster.ranged_avg_dmg = 0
+            monster.melee_median_dmg = 0
+
+        monster.ranged_attacks_num = sum([attack["attacks_num"]
+                                         for attack in ranged_attacks])
+        if ranged_attacks:
+            damages = [[attack["avg_dmg"]] * attack["attacks_num"]
+                       for attack in ranged_attacks]
+            damages = flatten(damages)
+            monster.ranged_median_dmg = median(damages)
+        else:
+            monster.ranged_median_dmg = 0
 
     space = re.search(r"Space\s+([0-9]+)", stat_block)
     if space:

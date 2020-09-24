@@ -39,10 +39,10 @@ class Monster:
         self.highest_attack_bonus: Union[int, None] = None
 
         self.melee_attacks_num: int = 0
-        self.melee_avg_dmg: int = 0
+        self.melee_median_dmg: int = 0
         
         self.ranged_attacks_num: int = 0
-        self.ranged_avg_dmg: int = 0
+        self.ranged_median_dmg: int = 0
 
         self.space: int = 5
         self.reach: int = 5

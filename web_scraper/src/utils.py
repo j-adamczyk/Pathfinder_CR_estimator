@@ -120,7 +120,8 @@ def parse_single_attack_type(text: str) -> Dict[str, Union[int, float]]:
     """
     result = {"attacks_num": 0,
               "highest_bonus": 0,
-              "avg_dmg": 0}
+              "avg_dmg": 0,
+              "full_dmg": 0}
 
     bonuses = re.search(r"([0-9+\-/]+)\s+\(", text)
     if bonuses:
@@ -165,4 +166,52 @@ def parse_single_attack_type(text: str) -> Dict[str, Union[int, float]]:
 
         result["avg_dmg"] = avg_dmg
 
+    result["full_dmg"] = result["attacks_num"] * result["avg_dmg"]
+
     return result
+
+
+def choose_alt_attacks(attacks, attacks_alt):
+    """
+    Checks alternative attacks (with "or" between), taking the attack with
+    higher overall damage for avg damage calculation for each alternative.
+    Ties are broken in favor of the attack with higher: avg_dmg, attacks_num,
+    highest_bonus.
+    If all of those fail, the attack with higher index is deleted.
+
+    :param attacks: list of dictionaries with individual attack types' stats
+    :param attacks_alt: whether the attack is alternative with the previous
+    one
+    """
+    # iterating with indices descending avoids problems with indexing while
+    # iterating and deleting elements
+    i = len(attacks)
+    while i > 0:
+        i -= 1
+        if attacks_alt[i]:
+            # current attack and previous one are "or"-ed
+            prev_atk = attacks[i - 1]
+            curr_atk = attacks[i]
+            choices = []
+            for feature in ["full_dmg", "avg_dmg", "attacks_num",
+                            "highest_bonus"]:
+                prev = prev_atk[feature]
+                curr = curr_atk[feature]
+                if prev < curr:
+                    choices.append(i - 1)
+                elif prev > curr:
+                    choices.append(i)
+                else:
+                    choices.append(None)
+
+            deleted = False
+            for choice in choices:
+                if choice:
+                    del attacks[choice]
+                    deleted = True
+                    break
+
+            if not deleted:
+                del attacks[i]
+
+    return attacks
