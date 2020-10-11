@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import Union
 
 
 class Monster:
@@ -36,7 +36,7 @@ class Monster:
         self.fly: int = 0
         self.swim: int = 0
 
-        self.highest_attack_bonus: Union[int, None] = None
+        self.highest_attack_bonus: int = 0
 
         self.melee_attacks_num: int = 0
         self.melee_median_dmg: int = 0

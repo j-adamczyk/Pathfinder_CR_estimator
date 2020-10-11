@@ -1,6 +1,6 @@
 import collections
 import re
-from typing import Dict, Set, Tuple, Union
+from typing import Dict, List, Set, Tuple, Union
 
 import requests
 
@@ -12,13 +12,24 @@ def get_page_content(link: str) -> bytes:
     :param link: hyperlink to page
     :return: response content
     """
-    request: requests.models.Response = requests.get(link)
+    headers = {"User-Agent": "Mozilla/5.0 (Macintosh; "
+                             "Intel Mac OS X 10_11_6) "
+                             "AppleWebKit/537.36 (KHTML, like Gecko) "
+                             "Chrome/61.0.3163.100 Safari/537.36"}
 
-    if request.status_code != requests.codes.ok:
+    response = requests.get(link, headers=headers)
+
+    html = response.content.decode("utf-8")
+
+    # we can get 404 in 2 cases: true error or redirect page for malformed
+    # URLs with suggestions; in the second case we should return content
+    # despite code 404
+    if response.status_code != requests.codes.ok and \
+            "We've found at least one possible match" not in html:
         raise ConnectionError("Page", link, "returned status code",
-                              request.status_code)
+                              response.status_code)
 
-    return request.content
+    return response.content
 
 
 def flatten(iterable):
@@ -42,11 +53,36 @@ def flatten(iterable):
             iterator = stack.pop()
         else:
             if not isinstance(value, str) \
-               and isinstance(value, collections.abc.Iterable):
+                    and isinstance(value, collections.abc.Iterable):
                 stack.append(iterator)
                 iterator = iter(value)
             else:
                 array.append(value)
+
+
+def get_monster_links(html_text: str) -> List[str]:
+    """
+    Gets all the links to the single monster pages, only the official ones (no
+    3rd party content).
+
+    :param html_text: page HTML code, decoded from content bytes as string
+    :return: list of links
+    """
+    links = re.findall(r"<a href=.+?</a>", html_text)
+
+    # some hyperlink list cleaning
+    # 3 list comprehensions turned out to be a degree of magnitude faster than 1 for loop
+
+    # filter out 3rd party content
+    links = [link for link in links
+             if not re.compile("3pp|3PP|tohc|TOHC").search(link)]
+
+    # get only hyperlinks
+    links = [re.match(r"<a href=\"(https://www.d20pfsrd.com/bestiary/monster-listings/.+?)\">", link)
+             for link in links]
+    links = [link.group(1) for link in links if link]
+
+    return links
 
 
 def get_feats_names() -> Set[str]:
@@ -68,6 +104,35 @@ def get_feats_names() -> Set[str]:
     return feats
 
 
+def get_subpages_links(html_text: str) -> List[str]:
+    """
+    Gets monster links from a page containing list of subpages.
+
+    :param html_text: content bytes of page decoded as string
+    :return: list of links to monster pages
+    """
+    # remove sidebars, get only main page content
+    content = re.search(r'<!-- Content -->[\S\s]*'
+                        r'<div class="ogn-childpages"[\s\S]*'
+                        r'Subpages([\S\s]*?)'
+                        r'</div>',
+                        html_text)
+    if not content:
+        return []
+    else:
+        content = content.group(1)
+
+    links = get_monster_links(content)
+
+    # sometimes links are duplicated here, where some have "/" at the end, when some do not
+    links = [link if not link.endswith("/")
+             else link[:-1]
+             for link in links]
+
+    # guarantee uniqueness
+    return list(set(links))
+
+
 def get_crit_info(text: str) -> Tuple[float, int]:
     """
     Calculates critical hit chance and multiplier from string. For example:
@@ -84,12 +149,16 @@ def get_crit_info(text: str) -> Tuple[float, int]:
     :return: critical chance as float, rounded to 2 decimal places (so to
     nearest 0.05) and critical multiplier as integer
     """
+    if not text:
+        # may happen if there is no critical hit info, assume defaults
+        return 0.05, 2
+
     lower_bound = re.search(r"(1[0-9])-20", text)
-    if not lower_bound:
-        crit_chance = 0.05
-    else:
+    if lower_bound:
         lower_bound = int(lower_bound.group(1))
         crit_chance = round((20 - lower_bound + 1) * 0.05, 2)
+    else:
+        crit_chance = 0.05
 
     crit_multiplier = re.search(r"x[0-9]", text)
     if crit_multiplier:
@@ -123,9 +192,20 @@ def parse_single_attack_type(text: str) -> Dict[str, Union[int, float]]:
               "avg_dmg": 0,
               "full_dmg": 0}
 
+    to_remove_regex = r"melee|Melee|ranged|Ranged|touch"
+    text = re.sub(to_remove_regex, "", text)
+
     bonuses = re.search(r"([0-9+\-/]+)\s+\(", text)
+    if not bonuses:
+        # check if the attack bonus is not mismatched, e.g. +1 javelin (...)
+        # instead of proper javelin +0 (...)
+        # this has to be a fallback option, since we can have magical attacks
+        # like +1 longsword +6/+1 (...) and we want to capture 2nd group of
+        # numbers (+6/+1 here)
+        bonuses = re.search(r"([0-9+\-/]+)\s*[a-zA-Z\-]+\s*\(", text)
+
     if bonuses:
-        bonuses = bonuses.group()
+        bonuses = bonuses.group(1)
         result["attacks_num"] = bonuses.count("/") + 1
 
         bonuses = re.search(r"\+[0-9]+|-[0-9]+", bonuses).group()
@@ -134,12 +214,20 @@ def parse_single_attack_type(text: str) -> Dict[str, Union[int, float]]:
     else:
         return result
 
+    if result["attacks_num"] == 1:
+        # attacks could be natural attacks, in which case there are no "/",
+        # multiple attacks are denoted by number before attack name
+        num_attacks = re.match(r"[0-9]+", text)
+        if num_attacks:
+            num_attacks = num_attacks.group()
+            result["attacks_num"] = int(num_attacks)
+
     attack_effects = re.search(r"\((.+)", text)
     if attack_effects:
-        attack_effects = attack_effects.group(1)
-        attack_effects = re.match(r"([0-9]+d[0-9]+[+|\-][0-9]+)(.+)|"
-                                  r"([0-9]+d[0-9]+)(.+)",
-                                  attack_effects)
+        attack_effects_str = attack_effects.group(1)
+        attack_effects = re.search(r"([0-9]+d[0-9]+[+|\-][0-9]+)(.*)|"
+                                   r"([0-9]+d[0-9]+)(.*)",
+                                   attack_effects_str)
 
         damage = attack_effects.group(1) if attack_effects.group(1) \
             else attack_effects.group(3)
@@ -166,52 +254,89 @@ def parse_single_attack_type(text: str) -> Dict[str, Union[int, float]]:
 
         result["avg_dmg"] = avg_dmg
 
+        for _, die_num, die_size in re.findall(
+                r"(\+|plus)\s*([0-9]+)d([0-9]+)", attack_effects_str):
+            die_num = int(die_num)
+            die_size = int(die_size)
+            avg_bonus_dmg = die_num * ((1 + die_size) / 2)
+            avg_dmg += avg_bonus_dmg
+
+        result["avg_dmg"] = avg_dmg
+
     result["full_dmg"] = result["attacks_num"] * result["avg_dmg"]
 
     return result
 
 
-def choose_alt_attacks(attacks, attacks_alt):
+def process_attacks_logic(attacks, logic):
     """
-    Checks alternative attacks (with "or" between), taking the attack with
-    higher overall damage for avg damage calculation for each alternative.
-    Ties are broken in favor of the attack with higher: avg_dmg, attacks_num,
-    highest_bonus.
-    If all of those fail, the attack with higher index is deleted.
+    Applies logical operators between attacks ("and", "or"), grouping attacks
+    and taking the attack groups with higher overall damage. For "and",
+    damage is summed up. For "or", group with higher damage is chosen.
+
+    For alternatives, ties are broken in favor of the attack with higher:
+    avg_dmg, attacks_num, highest_bonus.
+    If all of those fail, the attack with lower index is retained.
 
     :param attacks: list of dictionaries with individual attack types' stats
-    :param attacks_alt: whether the attack is alternative with the previous
-    one
+    :param logic: list of elements "and"/"or"/"" (logical operator between
+    this and previous attack, or lack thereof)
     """
+    attacks = attacks.copy()
+    if not attacks:
+        return []
+
+    # "and" binds stronger than "or", so we group attacks first, then take
+    # alternatives
+
     # iterating with indices descending avoids problems with indexing while
     # iterating and deleting elements
+
+    # "and" part
     i = len(attacks)
     while i > 0:
         i -= 1
-        if attacks_alt[i]:
+        if logic[i] == "and":
+            # current attack and previous one are "and"-ed
+            prev_atk = attacks[i - 1]
+            curr_atk = attacks[i]
+
+            prev_atk["highest_bonus"] = max(prev_atk["highest_bonus"],
+                                            curr_atk["highest_bonus"])
+            for attr in ["avg_dmg", "attacks_num", "full_dmg"]:
+                prev_atk[attr] = prev_atk[attr] + curr_atk[attr]
+
+            del attacks[i]
+            del logic[i]
+
+    # "or" part
+    i = len(attacks)
+    while i > 0:
+        i -= 1
+        if logic[i] == "or":
             # current attack and previous one are "or"-ed
             prev_atk = attacks[i - 1]
             curr_atk = attacks[i]
-            choices = []
+            choice = None  # choose attack to delete
             for feature in ["full_dmg", "avg_dmg", "attacks_num",
                             "highest_bonus"]:
                 prev = prev_atk[feature]
                 curr = curr_atk[feature]
                 if prev < curr:
-                    choices.append(i - 1)
-                elif prev > curr:
-                    choices.append(i)
-                else:
-                    choices.append(None)
-
-            deleted = False
-            for choice in choices:
-                if choice:
-                    del attacks[choice]
-                    deleted = True
+                    # choose prev_atk to delete
+                    choice = i - 1
                     break
+                elif prev > curr:
+                    # choose curr_atk to delete
+                    choice = i
+                    break
+                # else values equal, need to check further features
 
-            if not deleted:
+            if choice is not None:
+                # found unequal value to choose
+                del attacks[choice]
+            else:
+                # everything was tied, remove curr_atk
                 del attacks[i]
 
     return attacks

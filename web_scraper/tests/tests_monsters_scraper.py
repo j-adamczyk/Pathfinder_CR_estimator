@@ -165,7 +165,7 @@ def test_planetar_offense(get_planetar):
     assert monster.fly == 90
     assert monster.highest_attack_bonus == 27
     assert monster.melee_attacks_num == 3
-    assert math.isclose(monster.melee_median_dmg, 27.0)
+    assert math.isclose(monster.melee_median_dmg, 81.0)
     assert monster.ranged_attacks_num == 0
     assert math.isclose(monster.ranged_median_dmg, 0.0)
     assert monster.space == 10
@@ -228,7 +228,7 @@ def test_minotaur_offense(get_minotaur):
     assert monster.speed == 30
     assert monster.highest_attack_bonus == 9
     assert monster.melee_attacks_num == 3
-    assert math.isclose(monster.melee_median_dmg, 17.5)
+    assert math.isclose(monster.melee_median_dmg, 41)
     assert monster.ranged_attacks_num == 0
     assert math.isclose(monster.ranged_median_dmg, 0.0)
     assert monster.space == 10
