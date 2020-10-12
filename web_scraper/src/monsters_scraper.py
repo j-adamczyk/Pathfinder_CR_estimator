@@ -83,7 +83,7 @@ def parse_monster_page(link: str) -> Union[List[Monster], None]:
             return None
 
         if name.endswith("("):
-            name = name[:-1].rstrip().capitalize()
+            name = name[:-1].rstrip().title()
 
         monster.name = name
     else:
